@@ -168,7 +168,7 @@ jobs:
     - name: Test
       run: |
         cd build
-        make test
+        make check
         
     - name: Install
       run: |
