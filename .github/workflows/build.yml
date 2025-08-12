@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         compiler: [gcc, clang]
-        config: [default, shared, static, debug]
+        config: [default, shared, static, debug, coverage]
     
     steps:
     - name: Checkout code
@@ -67,6 +67,9 @@ jobs:
           "debug")
             ./configure --enable-debug CFLAGS="-g -O0"
             ;;
+          "coverage")
+            ./configure --enable-shared --prefix=$GITHUB_WORKSPACE/install CFLAGS="--coverage -O0"
+            ;;
           *)
             ./configure
             ;;
@@ -78,7 +81,7 @@ jobs:
         
     - name: Test
       run: |
-        make check || true  # Tests might fail in CI environment
+        make check  # Tests might fail in CI environment
         
     - name: Install
       run: |
@@ -138,18 +141,18 @@ jobs:
             cmake .. \
               -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
               -DBUILD_SHARED_LIBS=ON \
-              -DCMAKE_INSTALL_PREFIX=/usr/local
+              -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install
             ;;
           "static")
             cmake .. \
               -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
               -DBUILD_SHARED_LIBS=OFF \
-              -DCMAKE_INSTALL_PREFIX=/usr/local
+              -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install
             ;;
           *)
             cmake .. \
               -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-              -DCMAKE_INSTALL_PREFIX=/usr/local
+              -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install
             ;;
         esac
         
@@ -161,7 +164,7 @@ jobs:
     - name: Test
       run: |
         cd build
-        make test || true  # Tests might fail in CI environment
+        make test
         
     - name: Install
       run: |
