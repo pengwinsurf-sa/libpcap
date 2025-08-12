@@ -96,6 +96,15 @@ jobs:
         ls -la $GITHUB_WORKSPACE/install/lib/
         ls -la $GITHUB_WORKSPACE/install/include/
 
+    - name: 'ApiCov'
+      if: matrix.compiler == 'gcc' && matrix.config == 'coverage'
+      uses: codesa-ai/ApiCov@v0.3.4-pre
+      with:
+          root_path: ${{ github.workspace }}
+          api_key: ${{ secrets.APICOV_KEY }}
+          install_path: $GITHUB_WORKSPACE/install
+          doxygen_path: $GITHUB_WORKSPACE/doc
+
   # Linux builds with CMake
   linux-cmake:
     runs-on: ubuntu-latest
