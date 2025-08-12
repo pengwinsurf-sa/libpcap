@@ -59,19 +59,19 @@ jobs:
       run: |
         case "${{ matrix.config }}" in
           "shared")
-            ./configure --enable-shared --disable-static
+            ./configure --enable-shared --disable-static --prefix=$GITHUB_WORKSPACE/install
             ;;
           "static")
-            ./configure --disable-shared --enable-static
+            ./configure --disable-shared --enable-static --prefix=$GITHUB_WORKSPACE/install
             ;;
           "debug")
-            ./configure --enable-debug CFLAGS="-g -O0"
+            ./configure --enable-debug --prefix=$GITHUB_WORKSPACE/install CFLAGS="-g -O0"
             ;;
           "coverage")
             ./configure --enable-shared --prefix=$GITHUB_WORKSPACE/install CFLAGS="--coverage -O0"
             ;;
           *)
-            ./configure
+            ./configure --prefix=$GITHUB_WORKSPACE/install
             ;;
         esac
         
@@ -85,12 +85,16 @@ jobs:
         
     - name: Install
       run: |
-        sudo make install
+        make install
         
     - name: Verify installation
       run: |
+        export PKG_CONFIG_PATH=$GITHUB_WORKSPACE/install/lib/pkgconfig:$PKG_CONFIG_PATH
+        export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install/lib:$LD_LIBRARY_PATH
         pkg-config --exists libpcap
         pkg-config --modversion libpcap
+        ls -la $GITHUB_WORKSPACE/install/lib/
+        ls -la $GITHUB_WORKSPACE/install/include/
 
   # Linux builds with CMake
   linux-cmake:
@@ -169,9 +173,13 @@ jobs:
     - name: Install
       run: |
         cd build
-        sudo make install
+        make install
         
     - name: Verify installation
       run: |
+        export PKG_CONFIG_PATH=$GITHUB_WORKSPACE/install/lib/pkgconfig:$PKG_CONFIG_PATH
+        export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install/lib:$LD_LIBRARY_PATH
         pkg-config --exists libpcap
         pkg-config --modversion libpcap
+        ls -la $GITHUB_WORKSPACE/install/lib/
+        ls -la $GITHUB_WORKSPACE/install/include/
